@@ -2,8 +2,8 @@ name: Daily Commit
 
 on:
   schedule:
-    - cron: '15 4 * * *'
-  workflow_dispatch:
+    - cron: '15 4 * * *'  # Runs daily at 4:15 AM UTC (9:45 AM IST)
+  workflow_dispatch:      # Allows manual triggering
 
 jobs:
   commit:
@@ -12,10 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ allows push access
+          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ Allows push access
 
-      - name: Commit step - 23f2002365@ds.study.iitm.ac.in
+      - name: Create or Append to Daily Log
         run: |
+          # Ensure the file exists and append the log entry
+          touch daily-log.txt
           echo "TDSFU Daily run: $(date -u) TDSFU" >> daily-log.txt
 
       - name: Git Commit and Push
@@ -23,5 +25,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add daily-log.txt
-          git commit -m "Auto commit at $(date -u)" || echo "No changes to commit"
-          git push
+          # Commit only if there are changes, avoid empty commits
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto commit at $(date -u)"
+            git push
+          fi
