@@ -13,8 +13,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0           # Fetch all history for all branches and tags
-          ref: ${{ github.ref }}   # Checkout the branch that triggered the workflow
+          fetch-depth: 0
+
+      - name: Get current branch
+        id: get_branch
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
 
       - name: Create or Append to Daily Log
         run: |
@@ -32,5 +35,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Auto commit at $(date -u)"
-            git push
+            git push origin HEAD:${{ steps.get_branch.outputs.branch }}
           fi
