@@ -12,7 +12,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ Allows push access
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0           # Fetch all history for all branches and tags
+          ref: ${{ github.ref }}   # Checkout the branch that triggered the workflow
 
       - name: Create or Append to Daily Log
         run: |
