@@ -1,9 +1,12 @@
 name: Daily Commit
 
+permissions:
+  contents: write
+
 on:
   schedule:
-    - cron: '15 4 * * *'  # Runs daily at 4:15 AM UTC (9:45 AM IST)
-  workflow_dispatch:      # Allows manual triggering
+    - cron: '15 4 * * *'
+  workflow_dispatch:
 
 jobs:
   commit:
@@ -17,11 +20,10 @@ jobs:
 
       - name: Get current branch
         id: get_branch
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+        run: echo "branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
 
       - name: Create or Append to Daily Log
         run: |
-          # Ensure the file exists and append the log entry
           touch daily-log.txt
           echo "TDSFU Daily run: $(date -u) TDSFU" >> daily-log.txt
 
@@ -30,7 +32,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add daily-log.txt
-          # Commit only if there are changes, avoid empty commits
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
